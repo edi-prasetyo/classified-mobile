@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
 import '../../categories/models/category_model.dart';
 import '../../categories/pages/category_page.dart';
 
@@ -9,8 +11,11 @@ class HomeCategoryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Menambahkan 1 untuk kartu statis "More"
-    final int itemCount = categories.length + 1;
+    // 🔒 Ambil maksimal 3 kategori
+    final List<CategoryModel> visibleCategories = categories.take(3).toList();
+
+    // +1 untuk kartu statis "Lainnya"
+    final int itemCount = visibleCategories.length + 1;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -32,43 +37,40 @@ class HomeCategoryWidget extends StatelessWidget {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4, // 4 Kolom per baris
+            crossAxisCount: 4,
             crossAxisSpacing: 10,
             mainAxisSpacing: 20,
-            childAspectRatio:
-                0.8, // Mengatur tinggi agar pas untuk layout vertikal
+            childAspectRatio: 0.8,
           ),
           itemCount: itemCount,
           itemBuilder: (context, index) {
-            // Cek apakah ini item terakhir (Kartu More)
-            if (index == categories.length) {
+            // 🟩 Kartu statis "Lainnya" (selalu terakhir)
+            if (index == visibleCategories.length) {
               return _buildCategoryItem(
-                context,
                 title: "Lainnya",
-                icon: Icons.grid_view_rounded,
-                iconColor: Colors.grey.shade700,
-                bgColor: Colors.grey.shade100,
+                bgColor: Colors.blueAccent.withAlpha((255 * 0.1).round()),
+                icon: const Icon(
+                  Icons.grid_view_rounded,
+                  size: 28,
+                  color: Colors.grey,
+                ),
                 onTap: () {
-                  // Navigasi ke halaman semua kategori
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const CategoryPage(),
-                    ),
+                    MaterialPageRoute(builder: (_) => const CategoryPage()),
                   );
                 },
               );
             }
 
-            final category = categories[index];
+            final category = visibleCategories[index];
+
             return _buildCategoryItem(
-              context,
               title: category.name,
-              icon: _getIconForCategory(category.slug),
-              iconColor: Colors.blueAccent,
               bgColor: Colors.blueAccent.withOpacity(0.1),
+              icon: _buildSafeCategoryIcon(category),
               onTap: () {
-                print("Navigasi ke: ${category.route}");
+                debugPrint("Navigasi ke: ${category.route}");
               },
             );
           },
@@ -77,11 +79,12 @@ class HomeCategoryWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryItem(
-    BuildContext context, {
+  // =========================
+  // ITEM UI
+  // =========================
+  Widget _buildCategoryItem({
     required String title,
-    required IconData icon,
-    required Color iconColor,
+    required Widget icon,
     required Color bgColor,
     required VoidCallback onTap,
   }) {
@@ -89,26 +92,23 @@ class HomeCategoryWidget extends StatelessWidget {
       onTap: onTap,
       child: Column(
         children: [
-          // Icon Container (Lingkaran/Rounded Box)
           Container(
             height: 56,
             width: 56,
             decoration: BoxDecoration(
               color: bgColor,
               borderRadius: BorderRadius.circular(16),
-              // Shadow halus agar terlihat modern di 2025
               boxShadow: [
                 BoxShadow(
-                  color: iconColor.withOpacity(0.1),
+                  color: Colors.black.withOpacity(0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
               ],
             ),
-            child: Icon(icon, color: iconColor, size: 28),
+            child: Center(child: icon),
           ),
           const SizedBox(height: 8),
-          // Judul Kategori
           Text(
             title,
             textAlign: TextAlign.center,
@@ -125,14 +125,50 @@ class HomeCategoryWidget extends StatelessWidget {
     );
   }
 
-  IconData _getIconForCategory(String slug) {
-    switch (slug) {
-      case 'property':
-        return Icons.home_work_rounded;
-      case 'kendaraan':
-        return Icons.directions_car_filled_rounded;
-      default:
-        return Icons.category_rounded;
+  // =========================
+  // SAFE ICON BUILDER
+  // =========================
+  Widget _buildSafeCategoryIcon(CategoryModel category) {
+    final image = category.image;
+
+    // 1️⃣ Kosong → fallback
+    if (image == null || image.isEmpty) {
+      return const Icon(
+        Icons.category_rounded,
+        size: 28,
+        color: Colors.blueAccent,
+      );
     }
+
+    // 2️⃣ SVG
+    if (image.toLowerCase().endsWith('.svg')) {
+      return SvgPicture.network(
+        image,
+        width: 28,
+        height: 28,
+        fit: BoxFit.contain,
+        colorFilter: const ColorFilter.mode(Colors.blueAccent, BlendMode.srcIn),
+        placeholderBuilder: (_) => const SizedBox(
+          width: 18,
+          height: 18,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      );
+    }
+
+    // 3️⃣ PNG / JPG / format lain
+    return Image.network(
+      image,
+      width: 28,
+      height: 28,
+      fit: BoxFit.contain,
+      errorBuilder: (_, __, ___) {
+        return const Icon(
+          Icons.category_rounded,
+          size: 28,
+          color: Colors.blueAccent,
+        );
+      },
+    );
   }
 }

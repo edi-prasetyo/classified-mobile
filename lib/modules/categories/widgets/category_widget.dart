@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/category_model.dart';
 import '../controllers/category_controller.dart'; // Sesuaikan path controller Anda
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CategoryWidget extends ConsumerWidget {
   const CategoryWidget({super.key});
@@ -132,18 +133,34 @@ class CategoryWidget extends ConsumerWidget {
 
   Widget _buildIcon(CategoryModel item) {
     return Container(
+      width: 40,
+      height: 40,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: const Color(0xFFF1F1F1),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Icon(
-        item.slug == 'property'
-            ? Icons.home_work_rounded
-            : Icons.category_rounded,
-        color: const Color(0xFF00AA5B),
-        size: 20,
-      ),
+      child: item.image != null && item.image!.isNotEmpty
+          ? SvgPicture.network(
+              item.image!,
+              colorFilter: const ColorFilter.mode(
+                Color(0xFF00AA5B),
+                BlendMode.srcIn,
+              ),
+              fit: BoxFit.contain,
+              placeholderBuilder: (context) => const Center(
+                child: SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+            )
+          : const Icon(
+              Icons.category_rounded,
+              color: Color(0xFF00AA5B),
+              size: 20,
+            ),
     );
   }
 }
