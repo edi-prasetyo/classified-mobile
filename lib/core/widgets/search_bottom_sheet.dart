@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/constants/colors.dart';
-import '../../modules/categories/cotrollers/category_controller.dart';
+import '../../modules/categories/controllers/category_controller.dart';
 import '../../modules/home/widgets/city_search_page.dart';
 import 'button_solid.dart';
 

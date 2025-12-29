@@ -4,6 +4,8 @@ import '../models/category_model.dart';
 import '../controllers/category_controller.dart'; // Sesuaikan path controller Anda
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../pages/category_ads_page.dart';
+
 class CategoryWidget extends ConsumerWidget {
   const CategoryWidget({super.key});
 
@@ -107,7 +109,17 @@ class CategoryWidget extends ConsumerWidget {
 
   Widget _buildChildItem(CategoryModel child, BuildContext context) {
     return InkWell(
-      onTap: () => Navigator.pushNamed(context, child.route),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => CategoryAdsPage(
+              categoryName: child.name,
+              categorySlug: child.slug,
+            ),
+          ),
+        );
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(

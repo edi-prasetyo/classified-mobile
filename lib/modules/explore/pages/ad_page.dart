@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/widgets/ad_card_widget.dart';
 import '../controllers/ad_controller.dart';
-import '../widgets/ad_card_widget.dart';
 import '../widgets/filter_widget.dart';
 
 class AdPage extends ConsumerWidget {
@@ -37,7 +37,7 @@ class AdPage extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          // FILTER & SORT BAR
+          // FILTER BAR
           _buildFilterBar(context),
 
           // LIST IKLAN
@@ -53,22 +53,44 @@ class AdPage extends ConsumerWidget {
                   return _buildEmptyState();
                 }
 
-                return RefreshIndicator(
-                  onRefresh: () => ref.refresh(adControllerProvider.future),
-                  child: GridView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    // RESPONSIVE SETTING
+                    int crossAxisCount = 2;
+                    double aspectRatio = 0.73;
+
+                    if (constraints.maxWidth >= 900) {
+                      // Tablet besar
+                      crossAxisCount = 4;
+                      aspectRatio = 0.85;
+                    } else if (constraints.maxWidth >= 600) {
+                      // Tablet
+                      crossAxisCount = 3;
+                      aspectRatio = 0.85;
+                    }
+
+                    return RefreshIndicator(
+                      onRefresh: () => ref.refresh(adControllerProvider.future),
+                      child: GridView.builder(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
                           crossAxisSpacing: 12,
                           mainAxisSpacing: 12,
-                          childAspectRatio:
-                              0.65, // Sesuaikan dengan tinggi konten AdCard
+                          childAspectRatio: aspectRatio,
                         ),
-                    itemCount: ads.length,
-                    itemBuilder: (context, index) =>
-                        AdCardWidget(ad: ads[index]),
-                  ),
+                        itemCount: ads.length,
+                        itemBuilder: (context, index) {
+                          final ad = ads[index];
+
+                          return AdCardWidget(
+                            ad: ad,
+                            isTablet: constraints.maxWidth >= 600,
+                          );
+                        },
+                      ),
+                    );
+                  },
                 );
               },
             ),
@@ -90,7 +112,6 @@ class AdPage extends ConsumerWidget {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         children: [
-          // Tombol Filter Utama
           _filterChip(
             label: "Filter",
             icon: Icons.tune,
@@ -98,10 +119,8 @@ class AdPage extends ConsumerWidget {
             onPressed: () {
               showModalBottomSheet(
                 context: context,
-                isScrollControlled:
-                    true, // Wajib agar UI menyesuaikan keyboard & tinggi konten
-                backgroundColor:
-                    Colors.transparent, // Agar rounded border terlihat
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
                 builder: (context) => const FilterWidget(),
               );
             },

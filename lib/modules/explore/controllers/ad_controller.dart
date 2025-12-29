@@ -31,6 +31,20 @@ class AdController extends AsyncNotifier<List<AdModel>> {
     }
   }
 
+  Future<List<AdModel>> fetchPopularAds() async {
+    try {
+      final response = await _dio.get('${Api.baseUrl}/popular-ads');
+      if (response.statusCode == 200) {
+        // Perhatikan path JSON: data -> data (pagination)
+        final List<dynamic> listData = response.data['data'];
+        return listData.map((json) => AdModel.fromJson(json)).toList();
+      }
+      return [];
+    } catch (e) {
+      throw Exception('Gagal memuat iklan: $e');
+    }
+  }
+
   static String formatCurrency(int price) {
     return NumberFormat.currency(
       locale: 'id_ID',

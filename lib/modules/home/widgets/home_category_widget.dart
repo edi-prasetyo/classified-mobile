@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../categories/models/category_model.dart';
+import '../../categories/pages/category_ads_page.dart';
 import '../../categories/pages/category_page.dart';
 
 class HomeCategoryWidget extends StatelessWidget {
@@ -67,10 +68,18 @@ class HomeCategoryWidget extends StatelessWidget {
 
             return _buildCategoryItem(
               title: category.name,
-              bgColor: Colors.blueAccent.withOpacity(0.1),
+              bgColor: Colors.blueAccent.withAlpha((2255 * 0.7).round()),
               icon: _buildSafeCategoryIcon(category),
               onTap: () {
-                debugPrint("Navigasi ke: ${category.route}");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CategoryAdsPage(
+                      categoryName: category.name,
+                      categorySlug: category.slug,
+                    ),
+                  ),
+                );
               },
             );
           },
