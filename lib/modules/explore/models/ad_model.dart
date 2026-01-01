@@ -1,3 +1,5 @@
+import '../../../core/utils/parse_utils.dart';
+
 class AdModel {
   final int id;
   final String title;
@@ -33,11 +35,11 @@ class AdModel {
 
   factory AdModel.fromJson(Map<String, dynamic> json) {
     return AdModel(
-      id: json['id'],
+      id: parseInt(json['id']),
       title: json['title'],
       description: json['description'],
       slug: json['slug'],
-      price: json['price'] ?? 0,
+      price: parseInt(json['price']),
       adStatus: json['ad_status'],
       imageThumb: json['image_thumb'],
       createdAt: json['created_at'],
@@ -79,7 +81,7 @@ class AdAttribute {
 
   factory AdAttribute.fromJson(Map<String, dynamic> json) {
     return AdAttribute(
-      id: json['id'],
+      id: parseInt(json['id']),
       value: json['value'],
       label:
           json['category_attribute']['label'], // Mengambil label dari nested object
@@ -103,7 +105,7 @@ class AdImage {
     return AdImage(
       imageUrl: json['image_url'],
       imageThumbUrl: json['image_thumb_url'],
-      isPrimary: json['is_primary'],
+      isPrimary: parseInt(json['is_primary']),
     );
   }
 }

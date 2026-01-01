@@ -118,7 +118,7 @@ class AdDetailPage extends StatelessWidget {
               color: Color(0xFF00AA5B),
             ),
           ),
-          Text(ad.user?.phone ?? ''),
+          // Text(ad.user?.phone ?? ''),
           const SizedBox(height: 8),
           Text(
             ad.title,
@@ -134,7 +134,7 @@ class AdDetailPage extends StatelessWidget {
               ),
               const SizedBox(width: 4),
               Text(
-                "${ad.regency?.name}, ${ad.province?.name}",
+                "${ad.province?.name}",
                 style: const TextStyle(color: Colors.grey),
               ),
             ],
